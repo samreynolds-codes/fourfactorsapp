@@ -18,13 +18,17 @@
 <body>
 <h2>Four Factors Calculator</h2>
 
-<label for="teamA-select">Team A:</label>
-<select id="teamA-select">
-</select>
+<div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+    <label for="teamA-select">Team A:</label>
+    <select id="teamA-select"></select>
 
-<label for="teamB-select">Team B:</label>
-<select id="teamB-select">
-</select>
+    <label for="teamB-select">Team B:</label>
+    <select id="teamB-select"></select>
+
+    <span id="last-updated" style="margin-left:20px; font-size:14px; color:black;">
+        Last updated: April 3, 2026
+    </span>
+</div>
 
 <button id="calculate-btn">Calculate Edges</button>
 <p id="result"></p>
@@ -598,6 +602,10 @@ function localInitialize() {
 
 document.getElementById("calculate-btn").addEventListener("click", calculateEdges);
 
+</script>
+<script>
+// Set last updated date dynamically
+document.getElementById("last-updated").innerText = "Last updated: " + new Date().toLocaleDateString();
 window.addEventListener("DOMContentLoaded", localInitialize);
 </script>
 <footer style="text-align:center; font-size:16px; color:black; margin-top:10px; margin-bottom:5px;">
