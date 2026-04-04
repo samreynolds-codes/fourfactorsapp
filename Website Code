@@ -120,11 +120,42 @@ function buildDatabase(rows) {
 }
 
 // ---------- Edge Calculations ----------
-function calcShootingEdge(teamA, teamB) { return (teamA.efg + teamA.efgd) - (teamB.efg + teamB.efgd); }
-function calcTurnoverEdge(teamA, teamB) { return (teamB.tov - teamA.tovd) - (teamA.tov - teamB.tovd); }
-function calcReboundingEdge(teamA, teamB) { return (teamA.orb - teamB.drb) - (teamB.orb - teamA.drb); }
-function calcFreeThrowEdge(teamA, teamB) { return (teamA.ftr - teamB.ftrd) - (teamB.ftr - teamA.ftrd); }
-function calcTotalEdge(edges) { return 0.4 * edges.shooting + 0.25 * edges.turnovers + 0.2 * edges.rebounding + 0.15 * edges.freeThrow; }
+// Each function returns an object: { a: valueForTeamA, b: valueForTeamB }
+function calcShootingEdge(teamA, teamB) {
+    // team advantage = (team stat vs opponent defense) - (opponent stat vs team defense)
+    return {
+        a: (teamA.efg - teamB.efgd) - (teamB.efg - teamA.efgd),
+        b: (teamB.efg - teamA.efgd) - (teamA.efg - teamB.efgd)
+    };
+}
+function calcTurnoverEdge(teamA, teamB) {
+    // Lower TO% is better; team advantage = (opponent TO% vs team defense) - (team TO% vs opponent defense)
+    return {
+        a: (teamB.tov - teamA.tovd) - (teamA.tov - teamB.tovd),
+        b: (teamA.tov - teamB.tovd) - (teamB.tov - teamA.tovd)
+    };
+}
+function calcReboundingEdge(teamA, teamB) {
+    // team advantage = (team OR% - opponent DR%) - (opponent OR% - team DR%)
+    return {
+        a: (teamA.orb - teamB.drb) - (teamB.orb - teamA.drb),
+        b: (teamB.orb - teamA.drb) - (teamA.orb - teamB.drb)
+    };
+}
+function calcFreeThrowEdge(teamA, teamB) {
+    // team advantage = (team FTr - opponent FTrD) - (opponent FTr - team FTrD)
+    return {
+        a: (teamA.ftr - teamB.ftrd) - (teamB.ftr - teamA.ftrd),
+        b: (teamB.ftr - teamA.ftrd) - (teamA.ftr - teamB.ftrd)
+    };
+}
+function calcTotalEdge(edges) {
+    // edges: { shooting: {a,b}, turnovers: {a,b}, rebounding: {a,b}, freeThrow: {a,b} }
+    return {
+        a: 0.4 * edges.shooting.a + 0.25 * edges.turnovers.a + 0.2 * edges.rebounding.a + 0.15 * edges.freeThrow.a,
+        b: 0.4 * edges.shooting.b + 0.25 * edges.turnovers.b + 0.2 * edges.rebounding.b + 0.15 * edges.freeThrow.b
+    };
+}
 
 // ---------- UI Helpers ----------
 function setTeamStats(prefix, teamName, team) {
@@ -139,15 +170,13 @@ function setTeamStats(prefix, teamName, team) {
     document.getElementById(prefix + "-ftrd").innerText = team.ftrd;
 }
 
-function setEdge(idA, idB, value) {
+function setEdge(idA, idB, valueA, valueB) {
     const elA = document.getElementById(idA);
     const elB = document.getElementById(idB);
-
-    elA.innerText = value.toFixed(2);
-    elB.innerText = (-value).toFixed(2);
-
-    elA.style.color = value > 0 ? "green" : value < 0 ? "red" : "black";
-    elB.style.color = value < 0 ? "green" : value > 0 ? "red" : "black";
+    elA.innerText = valueA.toFixed(2);
+    elB.innerText = valueB.toFixed(2);
+    elA.style.color = valueA > 0 ? "green" : valueA < 0 ? "red" : "black";
+    elB.style.color = valueB > 0 ? "green" : valueB < 0 ? "red" : "black";
 }
 
 // ---------- Main Calculation ----------
@@ -176,22 +205,29 @@ function calculateEdges() {
     setTeamStats("teamA", teamAName, teamA);
     setTeamStats("teamB", teamBName, teamB);
 
+    // Calculate edges for each team
     const edges = {
         shooting: calcShootingEdge(teamA, teamB),
         turnovers: calcTurnoverEdge(teamA, teamB),
         rebounding: calcReboundingEdge(teamA, teamB),
         freeThrow: calcFreeThrowEdge(teamA, teamB)
     };
-
     const totalEdge = calcTotalEdge(edges);
 
-    setEdge("teamA-shooting-edge", "teamB-shooting-edge", edges.shooting);
-    setEdge("teamA-turnover-edge", "teamB-turnover-edge", edges.turnovers);
-    setEdge("teamA-rebounding-edge", "teamB-rebounding-edge", edges.rebounding);
-    setEdge("teamA-free-throw-edge", "teamB-free-throw-edge", edges.freeThrow);
-    setEdge("teamA-total-edge", "teamB-total-edge", totalEdge);
+    setEdge("teamA-shooting-edge", "teamB-shooting-edge", edges.shooting.a, edges.shooting.b);
+    setEdge("teamA-turnover-edge", "teamB-turnover-edge", edges.turnovers.a, edges.turnovers.b);
+    setEdge("teamA-rebounding-edge", "teamB-rebounding-edge", edges.rebounding.a, edges.rebounding.b);
+    setEdge("teamA-free-throw-edge", "teamB-free-throw-edge", edges.freeThrow.a, edges.freeThrow.b);
+    setEdge("teamA-total-edge", "teamB-total-edge", totalEdge.a, totalEdge.b);
 
-    const winner = totalEdge > 0 ? teamAName : totalEdge < 0 ? teamBName : "Tie";
+    let winner;
+    if (totalEdge.a > totalEdge.b) {
+        winner = teamAName;
+    } else if (totalEdge.b > totalEdge.a) {
+        winner = teamBName;
+    } else {
+        winner = "Tie";
+    }
     document.getElementById("result").innerText =
         winner === "Tie" ? "Matchup is even" : winner + " has the edge";
 }
