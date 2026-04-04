@@ -122,21 +122,19 @@ function buildDatabase(rows) {
 // ---------- Edge Calculations ----------
 // Returns { a: Team A edge, b: Team B edge }
 
-// H2H Four Factors edge calculations, always higher = stronger
+// True H2H Four Factors edge calculations, always higher = stronger
 function calcShootingEdge(teamA, teamB) {
-    // eFG%: high is good, eFG%D: low is good
-    // Each team's edge: (Own eFG% - Opponent's eFG%D)
+    // Shooting edge: (Team eFG% - Opponent eFG%) + (Opponent eFG%D - Team eFG%D)
+    // Always higher = stronger
     return {
-        a: teamA.efg - teamB.efgd,
-        b: teamB.efg - teamA.efgd
+        a: (teamA.efg - teamB.efg) + (teamB.efgd - teamA.efgd),
+        b: (teamB.efg - teamA.efg) + (teamA.efgd - teamB.efgd)
     };
 }
 
 function calcTurnoverEdge(teamA, teamB) {
-    // TOV%: low is good, TOV%D: high is good
-    // Each team's edge: (Opponent's TOV% - Own TOV%) + (Own TOV%D - Opponent's TOV%D)
-    // But to keep higher = stronger, use: (Opponent's TOV% - Own TOV%) + (Own TOV%D - Opponent's TOV%D)
-    // (Force more turnovers, commit fewer)
+    // Turnover edge: (Opponent TOV% - Team TOV%) + (Team TOV%D - Opponent TOV%D)
+    // Always higher = stronger
     return {
         a: (teamB.tov - teamA.tov) + (teamA.tovd - teamB.tovd),
         b: (teamA.tov - teamB.tov) + (teamB.tovd - teamA.tovd)
@@ -144,25 +142,25 @@ function calcTurnoverEdge(teamA, teamB) {
 }
 
 function calcReboundingEdge(teamA, teamB) {
-    // ORB%: high is good, DRB%: low is good
-    // Each team's edge: (Own ORB% - Opponent's DRB%)
+    // Rebounding edge: (Team ORB% - Opponent ORB%) + (Team DRB% - Opponent DRB%)
+    // Always higher = stronger
     return {
-        a: teamA.orb - teamB.drb,
-        b: teamB.orb - teamA.drb
+        a: (teamA.orb - teamB.orb) + (teamA.drb - teamB.drb),
+        b: (teamB.orb - teamA.orb) + (teamB.drb - teamA.drb)
     };
 }
 
 function calcFreeThrowEdge(teamA, teamB) {
-    // FTr: high is good, FTrD: low is good
-    // Each team's edge: (Own FTr - Opponent's FTrD)
+    // Free Throw edge: (Team FTr - Opponent FTr) + (Opponent FTrD - Team FTrD)
+    // Always higher = stronger
     return {
-        a: teamA.ftr - teamB.ftrd,
-        b: teamB.ftr - teamA.ftrd
+        a: (teamA.ftr - teamB.ftr) + (teamB.ftrd - teamA.ftrd),
+        b: (teamB.ftr - teamA.ftr) + (teamA.ftrd - teamB.ftrd)
     };
 }
 
 function calcTotalEdge(edges) {
-    // Weighted sum
+    // Weighted sum: 0.4 shooting, 0.25 turnovers, 0.2 rebounding, 0.15 free throws
     return {
         a: 0.4 * edges.shooting.a + 0.25 * edges.turnovers.a + 0.2 * edges.rebounding.a + 0.15 * edges.freeThrow.a,
         b: 0.4 * edges.shooting.b + 0.25 * edges.turnovers.b + 0.2 * edges.rebounding.b + 0.15 * edges.freeThrow.b
@@ -217,7 +215,7 @@ function calculateEdges() {
     setTeamStats("teamA", teamAName, teamA);
     setTeamStats("teamB", teamBName, teamB);
 
-    // Calculate edges for each team
+    // Calculate true H2H edges for each team
     const edges = {
         shooting: calcShootingEdge(teamA, teamB),
         turnovers: calcTurnoverEdge(teamA, teamB),
