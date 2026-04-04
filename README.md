@@ -1,2 +1,2 @@
-Data will be manually updated daily after all CBB game data is collected once games are finished
+Data is updated regularly after all CBB games are complete
 Stats based on Dean Oliver’s Four Factors | Data from Bart Torvik
