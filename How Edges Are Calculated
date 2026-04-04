@@ -1,14 +1,14 @@
-Team A Shooting: (Team A eFG% - Team B eFG%D) - (Team B eFG% - Team A efg%D)
-Team B Shooting: Team B eFG% - Team A eFG%D) - (Team A eFG% - Team B efg%D)
+Team A Shooting Edge = (A eFG% - B eFG%D) - (B eFG% - A efg%D)
+Team B Shooting Edge = (B eFG% - A eFG%D) - (A eFG% - B efg%D)
 
-Team A Turnover: (Team B TOV% - Team A TOV%D) - (Team A TOV% - Team B TOV%D)
-Team B Turnover: (Team A TOV% - Team B TOV%D) - (Team B TOV% - Team A TOV%D)
+Team A Turnover Edge = (A TOV%D - A TOV%) - (B TOV%D - B TOV%)
+Team B Turnover Edge = (B TOV%D - B TOV%) - (A TOV%D - A TOV%)
 
-Team A Rebounding: (Team A ORB% - Team B DRB%) - (Team B ORB% - Team A DRB%)
-Team B Rebounding: (Team B ORB% - Team A DRB%) - (Team A ORB% - Team B DRB%)
+Team A Rebounding Edge = (A ORB% - B DRB%) - (B ORB% - A DRB%)
+Team B Rebounding Edge = (Team B ORB% - Team A DRB%) - (A ORB% - B DRB%)
 
-Team A Free Throw: (Team A FTr - Team B FTrD) - (Team B FTr - Team A FTrD)
-Team B Free Throw: (Team B FTr - Team A FTrD) - (Team A FTr - Team B FTrD)
+Team A Free Throw Edge = (A FTr - A FTrD) - (B FTr - B FTrD)
+Team B Free Throw Edge = (B FTr - B FTrD) - (A FTr - A FTrD)
 
-Team A Total: (0.4 * Team A Shooting + 0.25 * Team A Turnover + 0.2 * Team A Rebounding + 0.15 * Team A Free Throw)
-Team B Total: (0.4 * Team B Shooting + 0.25 * Team B Turnover + 0.2 * Team B Rebounding + 0.15 * Team B Free Throw)
+Team A Total Edge = 0.4 * A Shooting + 0.25 * A Turnover + 0.2 * A Rebounding + 0.15 * A FT
+Team B Total Edge = 0.4 * B Shooting + 0.25 * B Turnover + 0.2 * B Rebounding + 0.15 * B FT
